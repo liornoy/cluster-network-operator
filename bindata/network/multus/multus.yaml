@@ -692,6 +692,17 @@ spec:
             defaultMode: 0744
 {{if .RenderIpReconciler}}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: whereabouts-config
+  namespace: openshift-multus
+  annotations:
+    kubernetes.io/description: |
+      Configmap containing user customizable cronjob schedule
+data:
+  cron-expression: "30 4 * * *" # Default schedule is once per day at 4:30am. Users may configure this value to their liking.
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -756,4 +767,11 @@ spec:
         - name: cni-net-dir
           hostPath:
             path: {{ .SystemCNIConfDir }}
+        - name: cron-scheduler-configmap
+          configMap:
+            name: "whereabouts-config"
+            defaultMode: 0744
+            items:
+            - key: "cron-expression"
+              path: "config"
 {{- end}}
